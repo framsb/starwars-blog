@@ -1,45 +1,60 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			url_api: "https://swapi.dev/api",
+			characters: [],
+			planets: [],
+			Favorites: [],
+			CharacterDetail: {},
+			PlanetDetail: {}
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			getCharacters: async () => {
+				try{
+					const response = await fetch(`${getStore().url_api}/people`)
+					let data = await response.json();
+					console.log(data)
+					setStore({characters: data.results });
+				} catch(error){
+					console.log(error);
+				};
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+			getPlanets: async () => {
+					const response = await fetch(`${getStore().url_api}/planets`)
+					let data = await response.json();
+					console.log(data)
+					setStore({planets: data.results });
+			},	
+			getCharacterDetail: async (id) =>{
+				try{
+					const response = await fetch(`${getStore().url_api}/people/${id}`)
+					const data = await response.json();
+					console.log(data)
+					setStore({CharacterDetail: data})
+				} catch (error){
+					console.log(error);
+				}
 			},
-			changeColor: (index, color) => {
-				//get the store
+			getPlanetDetail: async (id) =>{
+				try{
+					const response = await fetch(`${getStore().url_api}/planets/${id}`)
+					const data = await response.json();
+					console.log(data)
+					setStore({PlanetDetail: data})
+				} catch (error){
+					console.log(error);
+				}
+			},
+			addFavorites: id => {
 				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
+					(store.Favorites.includes(id)) ? console.log("Ya esta agregado") : setStore(store.Favorites.push(id))
+			},
+			deleteFav: id => {
+				const store = getStore();
+				setStore({Favorites: store.Favorites.filter((item, ind) => ind !== id)})
 			}
 		}
-	};
-};
+	}
+}
 
 export default getState;
